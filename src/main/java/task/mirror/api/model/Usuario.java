@@ -12,12 +12,12 @@ import java.util.List;
 
 @Builder
 @Entity
-@Table(name="TBL_USUARIOS")
+@Table(name="TBL_USUARIOS", uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_usuario")
+    @Column(name = "id_usuario" )
     private Long idUsuario;
 
     @Column(nullable = false, unique = true)
