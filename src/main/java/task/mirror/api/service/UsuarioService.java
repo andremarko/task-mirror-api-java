@@ -22,13 +22,14 @@ public class UsuarioService {
     @Autowired
     private UsuarioMapper usuarioMapper;
 
+    // pagina de perfil do usuario  lista tarefas do usuario
     public UsuarioResponseDTO getById(Long idUsuario) {
         Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         return usuarioMapper.toResponseDTO(usuario);
     }
 
     // create - cadastro de usuario por ADMIN e/ou SUPERIOR
-    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
+    public UsuarioResponseDTO create(UsuarioRequestDTO dto, Long idL) {
         Usuario lider = null;
         if (dto.getIdLider() != null) {
             lider = usuarioRepository.findById(dto.getIdLider())
@@ -55,6 +56,10 @@ public class UsuarioService {
         );
         return usuarios.map(usuarioMapper::toResponseDTO);
     }
+
+
+
+
 
 
 

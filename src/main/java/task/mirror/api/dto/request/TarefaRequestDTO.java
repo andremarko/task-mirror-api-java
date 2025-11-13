@@ -27,9 +27,11 @@ public class TarefaRequestDTO {
     @Digits(integer = 3, fraction = 2, message = "O tempo estimado deve ter no máximo 3 dígitos inteiros e 2 decimais")
     private Double tempoEstimado;
 
+    // inicio da tarefa definido pelo lider
     @NotNull(message = "A data de início é obrigatória")
     private LocalDateTime dataInicio;
 
+    // data fim definido pelo lider
     @NotNull(message = "A data de fim é obrigatória")
     private LocalDateTime dataFim;
 }
