@@ -3,7 +3,7 @@ package task.mirror.api;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "task.mirror.api")
 public class TaskMirrorApiApplication {
 
 	public static void main(String[] args) {
