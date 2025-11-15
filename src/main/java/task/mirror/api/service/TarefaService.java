@@ -1,12 +1,30 @@
 package task.mirror.api.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import task.mirror.api.dto.request.TarefaRequestDTO;
-import task.mirror.api.dto.response.TarefaResponseDTO;
-import task.mirror.api.model.Usuario;
+import task.mirror.api.dto.response.*;
+import task.mirror.api.mapper.TarefaMapper;
+import task.mirror.api.model.*;
+import task.mirror.api.repository.StatusTarefaRepository;
 import task.mirror.api.repository.TarefaRepository;
+import task.mirror.api.repository.TipoTarefaRepository;
+import task.mirror.api.repository.UsuarioRepository;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.security.Principal;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+
+import task.mirror.api.repository.FeedbackRepository;
+
 
 @Service
 public class TarefaService {
@@ -15,39 +33,178 @@ public class TarefaService {
     private TarefaRepository tarefaRepository;
 
     @Autowired
-    private UsuarioService usuarioService;
+    private TarefaMapper tarefaMapper;
 
     @Autowired
-    private TipoTarefaService tipoTarefaService;
+    private FeedbackService feedbackService;
 
     @Autowired
-    private StatusTarefaService statusTarefaService;
+    private FeedbackRepository feedbackRepository;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    // @Autowired
-    // private TarefaMapper tarefaMapper;
+    @Autowired
+    private TipoTarefaRepository tipoTarefaRepository;
 
-    // somente o chefe pode criar tarefas, @Secured no controller... verificando a role SE é ROLE_LIDER ou ROLE_DIRIGENTE, ROLE_SUPERIOR.. SUPERIOR É UMA BOA
+    @Autowired
+    private StatusTarefaRepository statusTarefaRepository;
+
+    // SUPERIOR
     @Transactional
     public TarefaResponseDTO create(TarefaRequestDTO dto) {
 
-        Usuario usuario = usuarioService.
+        Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
+        Usuario lider = usuarioRepository.findById(dto.getIdLider())
+                .orElseThrow(() -> new EntityNotFoundException("Líder não encontrado"));
 
+        TipoTarefa tipo = tipoTarefaRepository.findById(dto.getIdTipoTarefa())
+                .orElseThrow(() -> new EntityNotFoundException("Tipo de tarefa não encontrado"));
+
+        Tarefa tarefa = new Tarefa();
+        tarefa.setUsuario(usuario);
+        tarefa.setLider(lider);
+        tarefa.setTipoTarefa(tipo);
+        tarefa.setDescricao(dto.getDescricao());
+        tarefa.setTempoEstimado(dto.getTempoEstimado()); // em horas ex 2.5 (2 horas e meia)
+        tarefa.setDataInicio(dto.getDataInicio() != null ? dto.getDataInicio() : OffsetDateTime.now(ZoneOffset.ofHours(-3))); // data de criação definida automaticamente
+        tarefa.setStatusTarefa(statusTarefaRepository.findByNome("PENDENTE")); // STATUS DEFINIDO AUTOMATICAMENTE NA CRIAÇÃO DA TAREFA
+        tarefa.setDataFim(dto.getDataFim().withOffsetSameInstant(ZoneOffset.ofHours(-3)));
+
+        tarefa = tarefaRepository.save(tarefa);
+
+        // cria tarefa relacionada a um usuario - tela "minha equipe"
+        TarefaResponseDTO response = tarefaMapper.toResponseDTO(tarefa);
+
+        // adiciona último feedback, se houver (geralmente null no create)
+        Feedback ultimoFeedback = feedbackRepository.findTopByTarefaOrderByDataGeradoDesc(tarefa);
+        if (ultimoFeedback != null) {
+            response.setFeedback(new FeedbackResponseDTO(
+                    ultimoFeedback.getConteudo(),
+                    ultimoFeedback.getDataGerado()
+            ));
+        }
+
+        return response;
+    }
+
+    // SUPERIOR - TELA DE TAREFA
+    @Transactional
+    public TarefaResponseDTO update(Long idTarefa, TarefaRequestDTO dto) {
+        Tarefa tarefa = tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada"));
+
+        tarefa.setDescricao(dto.getDescricao());
+        tarefa.setTempoEstimado(dto.getTempoEstimado());
+        tarefa.setDataFim(dto.getDataFim().withOffsetSameInstant(ZoneOffset.ofHours(-3)));
+
+        if (dto.getIdTipoTarefa() != null) {
+            TipoTarefa tipoTarefa = tipoTarefaRepository.findById(dto.getIdTipoTarefa())
+                    .orElseThrow(() -> new EntityNotFoundException("Tipo de tarefa não encontrado"));
+            tarefa.setTipoTarefa(tipoTarefa);
+        }
+
+        if (dto.getIdUsuario() != null) {
+            Usuario usuario = usuarioRepository.findById(dto.getIdUsuario())
+                    .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+            tarefa.setUsuario(usuario);
+        }
+
+        Tarefa updated = tarefaRepository.save(tarefa);
+        return tarefaMapper.toResponseDTO(updated);
+    }
+
+    // SUPERIOR - TELA MINHA EQUIPE
+    @Transactional
+    public void delete(Long idTarefa) {
+        if (!tarefaRepository.existsById(idTarefa)) {
+            throw new EntityNotFoundException("Tarefa não encontrada");
+        }
+        tarefaRepository.deleteById(idTarefa);
+    }
+
+    // RETORNA TODAS TAREFAS
+    // TELA MINHA EQUIPE - SEÇÃO TAREFAS DA EQUIPE
+    @Transactional(readOnly = true)
+    public Page<TarefaResumoLiderDTO> getAll(Pageable pageable) {
+        Page<Tarefa> tarefas = tarefaRepository.findAll(pageable);
+        return tarefas.map(tarefaMapper::toResumoLiderDTO);
+    }
+
+    @Transactional(readOnly = true)
+    public TarefaResponseDTO getById(Long idTarefa, Principal principal) {
+        Tarefa tarefa = tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada"));
+
+        Usuario usuarioLogado = usuarioRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        if ("ROLE_SUBORDINADO".equals(usuarioLogado.getRoleUsuario())
+                && !tarefa.getUsuario().getIdUsuario().equals(usuarioLogado.getIdUsuario())) {
+            throw new SecurityException("Acesso negado: tarefa não pertence ao usuário");
+        }
+
+        TarefaResponseDTO dto = tarefaMapper.toResponseDTO(tarefa);
+
+        Feedback ultimoFeedback = feedbackRepository.findTopByTarefaOrderByDataGeradoDesc(tarefa);
+        if (ultimoFeedback != null) {
+            dto.setFeedback(new FeedbackResponseDTO(
+                    ultimoFeedback.getConteudo(),
+                    ultimoFeedback.getDataGerado()
+            ));
+        }
+
+        return dto;
+    }
+
+    // SUBORDINADO - CONCLUIR TAREFA - "MINHAS TAREFAS"
+    @Transactional
+    public TarefaResponseDTO concluirTarefa(Long idTarefa) {
+        Tarefa tarefa = tarefaRepository.findById(idTarefa)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada"));
+
+        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
+
+        OffsetDateTime inicio = tarefa.getDataInicio();
+        BigDecimal minutos = BigDecimal.valueOf(Duration.between(inicio, agora).toMinutes());
+        BigDecimal horas = minutos.divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
+        tarefa.setTempoReal(horas);
+
+        if (tarefa.getDataFim() != null && agora.isAfter(tarefa.getDataFim())) {
+            tarefa.setStatusTarefa(statusTarefaRepository.findByNome("ATRASADA"));
+        } else {
+            tarefa.setStatusTarefa(statusTarefaRepository.findByNome("CONCLUIDA"));
+        }
+
+        Feedback feedbackGerado = null;
+        try {
+            feedbackGerado = feedbackService.gerarFeedback(tarefa);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        tarefa = tarefaRepository.save(tarefa);
+
+        TarefaResponseDTO dto = tarefaMapper.toResponseDTO(tarefa);
+
+        if (feedbackGerado != null) {
+            dto.setFeedback(new FeedbackResponseDTO(
+                    feedbackGerado.getConteudo(),
+                    feedbackGerado.getDataGerado()
+            ));
+        }
+
+        return dto;
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // PERFIL DO USUARIO (SUBORDINADO)
+    @Transactional(readOnly = true)
+    public Page<TarefaResumoSubordinadoDTO> getTarefasDoUsuario(Long idUsuario, Pageable pageable) {
+        Page<Tarefa> tarefas = tarefaRepository.findByUsuarioIdUsuario(idUsuario, pageable);
+        return tarefas.map(tarefaMapper::toResumoSubordinadoDTO);
+    }
 }
+

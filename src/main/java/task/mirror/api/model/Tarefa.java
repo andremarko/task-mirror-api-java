@@ -2,13 +2,15 @@ package task.mirror.api.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
 @Table(name = "TBL_TAREFAS")
 public class Tarefa {
@@ -18,19 +20,19 @@ public class Tarefa {
     @Column(name = "id_tarefa")
     private Long idTarefa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_lider", nullable = false)
     private Usuario lider;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_tipo_tarefa", nullable = false)
     private TipoTarefa tipoTarefa;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_status_tarefa", nullable = false)
     private StatusTarefa statusTarefa;
 
@@ -38,11 +40,11 @@ public class Tarefa {
     private String descricao;
 
     @Column(precision = 5, scale = 2)
-    private Double tempoEstimado;
+    private BigDecimal tempoEstimado;
 
     @Column(precision = 5, scale = 2)
-    private Double tempoReal;
+    private BigDecimal tempoReal;
 
-    private LocalDateTime dataInicio;
-    private LocalDateTime dataFim;
+    private OffsetDateTime dataInicio;
+    private OffsetDateTime dataFim;
 }

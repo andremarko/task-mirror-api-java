@@ -10,16 +10,13 @@ import java.time.OffsetDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TarefaResponseDTO {
+public class TarefaResumoSubordinadoDTO {
     private Long idTarefa;
     private LiderResponseDTO lider; // quem atribuiu
-    private UsuarioResponseDTO usuario; // executor
     private TipoTarefaResponseDTO tipoTarefa;
     private StatusTarefaResponseDTO statusTarefa;
-    private FeedbackResponseDTO feedback;
-    private String descricao;
-    private BigDecimal tempoEstimado;
-    private BigDecimal tempoReal;
-    private OffsetDateTime dataInicio;
-    private OffsetDateTime dataFim;
+    private BigDecimal tempoEstimado; // para conclusao
+    private BigDecimal tempoReal; // tempo total para conclusao
+    private OffsetDateTime dataInicio; // data inicial da tarefa
+    private OffsetDateTime dataFim; // data final da tarefa (data limite para conclusao)
 }
