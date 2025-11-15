@@ -25,7 +25,7 @@ public class TipoTarefaService {
     @Transactional(readOnly = true)
     public List<TipoTarefaResponseDTO> getAll() {
         List<TipoTarefa> tipoTarefa = tipoTarefaRepository.findAll();
-        return tipoTarefa.stream().map(tipoTarefaMapper::toTipoTarefaResponseDTO)
+        return tipoTarefa.stream().map(tipoTarefaMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 }

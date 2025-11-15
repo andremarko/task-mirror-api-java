@@ -6,4 +6,5 @@ import task.mirror.api.model.StatusTarefa;
 
 @Repository
 public interface StatusTarefaRepository extends JpaRepository<StatusTarefa, Long> {
+    StatusTarefa findByNome(String nome);
 }

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TipoTarefaResponseDTO {
-    private Long tipoTarefaId;
+    private Long idTipoTarefa;
     private String nome;
 }

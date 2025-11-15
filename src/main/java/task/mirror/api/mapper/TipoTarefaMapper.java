@@ -6,5 +6,5 @@ import task.mirror.api.model.TipoTarefa;
 
 @Mapper(componentModel = "spring")
 public interface TipoTarefaMapper {
-   TipoTarefaResponseDTO toTipoTarefaResponseDTO(TipoTarefa tipoTarefa);
+   TipoTarefaResponseDTO toResponseDTO(TipoTarefa tipoTarefa);
 }
