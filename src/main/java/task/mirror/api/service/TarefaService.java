@@ -167,36 +167,34 @@ public class TarefaService {
 
         OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
 
-        OffsetDateTime inicio = tarefa.getDataInicio();
-        BigDecimal minutos = BigDecimal.valueOf(Duration.between(inicio, agora).toMinutes());
-        BigDecimal horas = minutos.divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
-        tarefa.setTempoReal(horas);
+        // calcula o tempo real em horas com duas casas decimais
+        long minutos = java.time.Duration.between(tarefa.getDataInicio(), agora).toMinutes();
+        BigDecimal tempoReal = BigDecimal.valueOf(minutos)
+                .divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_HALF_UP);
+        tarefa.setTempoReal(tempoReal);
 
-        if (tarefa.getDataFim() != null && agora.isAfter(tarefa.getDataFim())) {
-            tarefa.setStatusTarefa(statusTarefaRepository.findByNome("ATRASADA"));
-        } else {
-            tarefa.setStatusTarefa(statusTarefaRepository.findByNome("CONCLUIDA"));
-        }
+        // define status
+        StatusTarefa status = agora.isAfter(tarefa.getDataFim())
+                ? statusTarefaRepository.findByNome("ATRASADA")
+                : statusTarefaRepository.findByNome("CONCLUIDA");
+        tarefa.setStatusTarefa(status);
 
-        Feedback feedbackGerado = null;
+        // salva tarefa
+        tarefaRepository.save(tarefa);
+
+        // monta DTO
+        TarefaResponseDTO response = tarefaMapper.toResponseDTO(tarefa);
+
         try {
-            feedbackGerado = feedbackService.gerarFeedback(tarefa);
+            Feedback feedback = feedbackService.gerarFeedback(tarefa);
+            if (feedback != null) {
+                response.setFeedback(new FeedbackResponseDTO(feedback.getConteudo(), feedback.getDataGerado()));
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            response.setFeedback(null);
         }
 
-        tarefa = tarefaRepository.save(tarefa);
-
-        TarefaResponseDTO dto = tarefaMapper.toResponseDTO(tarefa);
-
-        if (feedbackGerado != null) {
-            dto.setFeedback(new FeedbackResponseDTO(
-                    feedbackGerado.getConteudo(),
-                    feedbackGerado.getDataGerado()
-            ));
-        }
-
-        return dto;
+        return response;
     }
 
 

@@ -1,6 +1,9 @@
-package task.mirror.api.controller;
+package task.mirror.api.integracao;
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +19,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UsuarioControllerTest {
 
     @Autowired
@@ -24,6 +28,7 @@ public class UsuarioControllerTest {
     // ========================= TODOS =========================
 
     @Test
+    @Order(1)
     @WithMockUser(roles = {"ADMIN", "SUPERIOR", "SUBORDINADO"})
     void getUsuariosById() throws Exception {
         // DEVE RETORNAR LIDER - ID_USUARIO = 1
@@ -36,6 +41,7 @@ public class UsuarioControllerTest {
     // ========================= ADMIN =========================
 
     @Test
+    @Order(2)
     @WithMockUser(roles = "ADMIN")
     void getAllUsuariosForAdmin() throws Exception {
         // DEVE RETORNAR TODOS USUARIOS CADASTRADOS
@@ -46,16 +52,7 @@ public class UsuarioControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    public void desativarUsuario() throws Exception {
-        // DEVE DESATIVAR O USUARIO COM ID 4
-        mockMvc.perform(put("/api/usuarios/4/desativar")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
+    @Order(3)
     @WithMockUser(roles="ADMIN")
     public void createUsuario() throws Exception {
         String usuarioJson = """
@@ -76,6 +73,7 @@ public class UsuarioControllerTest {
     }
 
     @Test
+    @Order(4)
     @WithMockUser(roles="ADMIN")
     public void updateUsuario() throws Exception {
         String usuarioJson = """
@@ -88,7 +86,7 @@ public class UsuarioControllerTest {
             "idLider": 1
         }
         """;
-    mockMvc.perform(put("/api/usuarios/admin/9")
+    mockMvc.perform(put("/api/usuarios/admin/8")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(usuarioJson))
             .andDo(print())
@@ -98,10 +96,24 @@ public class UsuarioControllerTest {
     // ========================= SUPERIOR =========================
 
     @Test
+    @Order(5)
     @WithMockUser(roles = "SUPERIOR")
     void getAllUsersExceptAdminLider() throws Exception {
         // DEVE RETORNAR TODOS USUARIOS EXCETO ADMIN E LIDER
         mockMvc.perform(get("/api/usuarios/lider")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    // ========================= ADMIN =========================
+
+    @Test
+    @Order(6)
+    @WithMockUser(roles = "ADMIN")
+    public void desativarUsuario() throws Exception {
+        // DEVE DESATIVAR O USUARIO COM ID 6
+        mockMvc.perform(put("/api/usuarios/8/desativar")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());

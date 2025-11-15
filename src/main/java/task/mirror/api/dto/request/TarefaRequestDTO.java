@@ -22,9 +22,6 @@ public class TarefaRequestDTO {
     @Schema(description = "Id do lider que criou essa tarefa", example="1")
     private Long idLider;
 
-    @Schema(description = "Id do Status da tarefa - deve ser nulo (definido automaticamente)", example="")
-    private Long idStatusTarefa;
-
     @Schema(description = "Id do tipo da tarefa (vide tipo_tarefa)", example="6")
     @NotNull
     private Long idTipoTarefa;

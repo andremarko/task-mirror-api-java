@@ -1,7 +1,10 @@
-package task.mirror.api.controller;
+package task.mirror.api.integracao;
 
 
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
@@ -22,6 +26,7 @@ TESTES EM ENDPOINT VIVO
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TarefaControllerTest {
 
     @Autowired
@@ -30,6 +35,7 @@ public class TarefaControllerTest {
     // ========================= SUPERIOR =========================
 
     @Test
+    @Order(1)
     @WithMockUser(roles="SUPERIOR")
     void createTarefa() throws Exception {
         String tarefaJson = """
@@ -39,8 +45,8 @@ public class TarefaControllerTest {
           "idTipoTarefa": 2,
           "descricao": "Descricao Teste",
           "tempoEstimado": 5,
-           "dataFim": "2025-11-14T22:41:59Z"
-        }
+          "dataFim": "2025-11-23T23:59:59Z"
+         }
         """;
 
         mockMvc.perform(post("/api/tarefas")
@@ -50,6 +56,7 @@ public class TarefaControllerTest {
     }
 
     @Test
+    @Order(2)
     @WithMockUser(roles="SUPERIOR")
     void updateTarefa() throws Exception {
         String tarefaJson = """
@@ -58,7 +65,7 @@ public class TarefaControllerTest {
         "idTipoTarefa": 2,
         "descricao": "Descricao Teste Atualizada",
         "tempoEstimado": 6,
-        "dataFim": "2025-11-23T23:59:59"
+        "dataFim": "2025-11-23T23:59:59Z"
         }
         """;
 
@@ -71,9 +78,9 @@ public class TarefaControllerTest {
     // ========================= GET =========================
 
     @Test
+    @Order(3)
     @WithMockUser(roles="SUPERIOR")
     void getAllTarefas() throws Exception {
-        System.out.println("===== TESTE GET ALL TAREFAS - TELA MINHA EQUIPE =====");
         mockMvc.perform(get("/api/tarefas")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
@@ -84,6 +91,7 @@ public class TarefaControllerTest {
     // ========================= SUBORDINADO =========================
 
     @Test
+    @Order(4)
     @WithMockUser(username="sub01", roles="SUBORDINADO")
     void getTarefasDoSubordinado() throws Exception {
         mockMvc.perform(get("/api/tarefas/meu-perfil")
@@ -93,18 +101,23 @@ public class TarefaControllerTest {
     }
 
     @Test
+    @Order(5)
     @WithMockUser(username="sub01", roles="SUBORDINADO")
-    void concluirTarefa() throws Exception{
-        mockMvc.perform(put("/api/tarefas/5/concluir"))
+    void concluirTarefa() throws Exception {
+        mockMvc.perform(put("/api/tarefas/6/concluir")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andDo(print());
+                .andExpect(jsonPath("$.feedback").isNotEmpty())
+                .andExpect(jsonPath("$.feedback.conteudo").exists());
     }
 
 
     @Test
-    @WithMockUser(roles="SUBORDINADO")
+    @Order(6)
+    @WithMockUser(username="sub01", roles="SUBORDINADO")
     void getTarefaById() throws Exception {
-        mockMvc.perform(get("/api/tarefas/6")
+        mockMvc.perform(get("/api/tarefas/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -113,9 +126,11 @@ public class TarefaControllerTest {
     // ========================= DELETE =========================
 
     @Test
+    @Order(7)
+    // DELEÇÃO FÍSICA
     @WithMockUser(roles="SUPERIOR")
     void deleteTarefa() throws Exception {
-        mockMvc.perform(delete("/api/tarefas/5")
+        mockMvc.perform(delete("/api/tarefas/6")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

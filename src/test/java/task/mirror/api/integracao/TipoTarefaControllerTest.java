@@ -1,4 +1,4 @@
-package task.mirror.api.controller;
+package task.mirror.api.integracao;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
