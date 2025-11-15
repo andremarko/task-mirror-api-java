@@ -4,13 +4,16 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import task.mirror.api.dto.request.UsuarioRequestDTO;
 import task.mirror.api.dto.response.UsuarioResponseDTO;
 import task.mirror.api.mapper.UsuarioMapper;
 import task.mirror.api.model.Usuario;
 import task.mirror.api.repository.UsuarioRepository;
 
+import java.security.SecureRandom;
 import java.util.List;
 
 @Service
@@ -22,47 +25,109 @@ public class UsuarioService {
     @Autowired
     private UsuarioMapper usuarioMapper;
 
-    // pagina de perfil do usuario  lista tarefas do usuario
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    // GERAL
+    @Transactional(readOnly = true)
     public UsuarioResponseDTO getById(Long idUsuario) {
         Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
         return usuarioMapper.toResponseDTO(usuario);
     }
 
-    // create - cadastro de usuario por ADMIN e/ou SUPERIOR
-    public UsuarioResponseDTO create(UsuarioRequestDTO dto, Long idL) {
+    @Transactional(readOnly = true)
+    public Long getIdByUsername(String username) {
+        Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+        return usuario.getIdUsuario();
+    }
+
+    // ADMIN
+    @Transactional
+    public UsuarioResponseDTO create(UsuarioRequestDTO dto) {
         Usuario lider = null;
         if (dto.getIdLider() != null) {
             lider = usuarioRepository.findById(dto.getIdLider())
                     .orElseThrow(() -> new EntityNotFoundException("Líder não encontrado"));
         }
         Usuario usuario = usuarioMapper.toEntity(dto);
+        String password = generateRandomPassword(8);
+
+        usuario.setPassword(passwordEncoder.encode(password));
         usuario.setLider(lider);
         usuarioRepository.save(usuario);
-        return usuarioMapper.toResponseDTO(usuario);
+        UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuario);
+        response.setSenhaGerada(password);
+        return response;
     }
 
-    // getAll lista todos os usuarios do sistema diferente do lider e admin
+    // ADMIN
+    @Transactional
+    public UsuarioResponseDTO update(Long idUsuario, UsuarioRequestDTO dto, boolean gerarNovaSenha) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        if (dto.getUsername() != null) usuario.setUsername(dto.getUsername());
+        if (dto.getRoleUsuario() != null) usuario.setRoleUsuario(dto.getRoleUsuario());
+        if (dto.getFuncao() != null) usuario.setFuncao(dto.getFuncao());
+        if (dto.getCargo() != null) usuario.setCargo(dto.getCargo());
+        if (dto.getSetor() != null) usuario.setSetor(dto.getSetor());
+
+        if (dto.getIdLider() != null) {
+            Usuario lider = usuarioRepository.findById(dto.getIdLider())
+                    .orElseThrow(() -> new EntityNotFoundException("Líder não encontrado"));
+            usuario.setLider(lider);
+        }
+
+        if (gerarNovaSenha) {
+            String novaSenha = generateRandomPassword(8);
+            usuario.setPassword(passwordEncoder.encode(novaSenha));
+            UsuarioResponseDTO response = usuarioMapper.toResponseDTO(usuarioRepository.save(usuario));
+            response.setSenhaGerada(novaSenha);
+            return response;
+        }
+
+        return usuarioMapper.toResponseDTO(usuarioRepository.save(usuario));
+    }
+
+    // SUPERIOR
+    // TELA DE CADASTRO DE TAREFA, TELA MINHA EQUIPE
+    @Transactional(readOnly = true)
     public Page<UsuarioResponseDTO> getAllUsersExceptAdminLider(Pageable pageable) {
-        Page<Usuario> usuarios = usuarioRepository.findByRoleUsuarioNotIn(
+        Page<Usuario> usuarios = usuarioRepository.findByAtivoTrueAndRoleUsuarioNotIn(
                 List.of("ROLE_SUPERIOR", "ROLE_ADMIN"), pageable
         );
         return usuarios.map(usuarioMapper::toResponseDTO);
     }
 
-    // getAll lista todos os usuarios do sistema com exceção role_admin
-    public Page<UsuarioResponseDTO> getAllUsersExceptAdmin(Pageable pageable) {
-        Page<Usuario> usuarios = usuarioRepository.findByRoleUsuarioNotIn(
-                List.of("ROLE_ADMIN"), pageable
-        );
+    // ADMIN
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponseDTO> getAllForAdmin(Pageable pageable) {
+        Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
         return usuarios.map(usuarioMapper::toResponseDTO);
     }
 
+    // ADMIN
+    @Transactional
+    public UsuarioResponseDTO desativarUsuario(Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
 
+        usuario.setAtivo(false);
+        Usuario atualizado = usuarioRepository.save(usuario);
 
+        return usuarioMapper.toResponseDTO(atualizado);
+    }
 
-
-
-
-
-
+    // Gera senha aleatoria
+    private String generateRandomPassword(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = random.nextInt(chars.length());
+            sb.append(chars.charAt(index));
+        }
+        return sb.toString();
+    }
 }

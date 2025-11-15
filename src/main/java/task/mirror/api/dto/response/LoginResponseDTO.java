@@ -4,15 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsuarioResponseDTO {
-    private Long idUsuario;
+public class LoginResponseDTO {
+    private String token;
     private String username;
-    private String funcao;
-    private String cargo;
-    private String setor;
-    private Boolean ativo;
-    private String senhaGerada;
+    private List<String> role;
 }

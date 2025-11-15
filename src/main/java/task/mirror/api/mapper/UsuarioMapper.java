@@ -1,7 +1,6 @@
 package task.mirror.api.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 import task.mirror.api.dto.request.UsuarioRequestDTO;
 import task.mirror.api.dto.response.UsuarioResponseDTO;
 import task.mirror.api.model.Usuario;
@@ -10,5 +9,4 @@ import task.mirror.api.model.Usuario;
 public interface UsuarioMapper {
     UsuarioResponseDTO toResponseDTO(Usuario usuario);
     Usuario toEntity(UsuarioRequestDTO dto);
-    void updateEntityFromDto(UsuarioRequestDTO dto, @MappingTarget Usuario usuario);
 }

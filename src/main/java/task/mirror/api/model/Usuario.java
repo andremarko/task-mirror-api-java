@@ -2,6 +2,7 @@ package task.mirror.api.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 
 import java.util.List;
 
@@ -9,9 +10,8 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-@Builder
 @Entity
+@DynamicInsert
 @Table(name="TBL_USUARIOS", uniqueConstraints = @UniqueConstraint(columnNames = {"username"}))
 public class Usuario {
 
@@ -37,6 +37,9 @@ public class Usuario {
 
     @Column(nullable = false, length = 100)
     private String setor;
+
+    @Column(nullable = false, columnDefinition = "NUMBER(1) DEFAULT 1")
+    private Boolean ativo;
 
     @ManyToOne
     @JoinColumn(name = "id_lider")
