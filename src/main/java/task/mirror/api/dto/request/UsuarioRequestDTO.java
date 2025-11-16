@@ -20,9 +20,6 @@ public class UsuarioRequestDTO {
     @Schema(description = "Líder/Superior do funcionário. Se nulo, esse membro não há líder ou é o líder", example="1")
     private Long idLider;
 
-    @Schema(description = "Senha do usuário. Gerada automaticamente na criação. Deixar nulo.", example="")
-    private String senha;
-
     @Schema(description = "Role do usuário, hierarquica. ROLE_ADMIN, ROLE_SUPERIOR e ROLE_SUBORDINADO", example="ROLE_SUBORDINADO")
     @NotBlank(message = "Papel do usuário não pode ser nulo")
     private String roleUsuario;
@@ -38,7 +35,4 @@ public class UsuarioRequestDTO {
     @Schema(description = "Setor do funcionário", example="TI")
     @NotBlank(message = "Setor do funcionário não pode ser nulo")
     private String setor;
-
-    @Schema(description = "Quando usuário é cadastrado, o ativo é passado como 1 automaticamente. Manter nulo", example="")
-    private Boolean ativo;
 }

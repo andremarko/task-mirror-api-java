@@ -24,7 +24,7 @@ public class UsuarioController {
     @Tag(name = "Geral - Requer autenticação (qualquer role)")
     @Operation(summary = "Retorna os dados do usuário pelo ID - Geral")
     @Secured({"ROLE_ADMIN", "ROLE_SUPERIOR", "ROLE_SUBORDINADO"})
-    @GetMapping("/{idUsuario}")
+    @GetMapping("/geral/{idUsuario}")
     public UsuarioResponseDTO getById(@PathVariable Long idUsuario) {
         return usuarioService.getById(idUsuario);
     }
@@ -33,7 +33,7 @@ public class UsuarioController {
     @Tag(name = "Admin")
     @Operation(summary = "Cria um novo usuário - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @PostMapping("/admin")
+    @PostMapping("/admin/criar")
     @ResponseStatus(HttpStatus.CREATED)
     public UsuarioResponseDTO create(@RequestBody UsuarioRequestDTO dto) {
         return usuarioService.create(dto);
@@ -42,7 +42,7 @@ public class UsuarioController {
     @Tag(name = "Admin")
     @Operation(summary = "Atualiza um usuário - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @PutMapping("/admin/{idUsuario}")
+    @PutMapping("/admin/atualizar/{idUsuario}")
     public UsuarioResponseDTO update(
             @PathVariable Long idUsuario,
             @RequestBody UsuarioRequestDTO dto,
@@ -54,7 +54,7 @@ public class UsuarioController {
     @Tag(name = "Admin")
     @Operation(summary = "Retorna todos os usuários - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @GetMapping("/admin")
+    @GetMapping("/admin/todos-usuarios")
     public Page<UsuarioResponseDTO> getAllForAdmin(
             @ParameterObject
             @PageableDefault(page = 0, size = 10)
@@ -63,9 +63,17 @@ public class UsuarioController {
     }
 
     @Tag(name = "Admin")
+    @Operation(summary = "Ativa um usuário - Apenas para usuários com papel ADMIN")
+    @Secured("ROLE_ADMIN")
+    @PutMapping("/admin/ativar/{idUsuario}")
+    public UsuarioResponseDTO ativarUsuario(@PathVariable Long idUsuario) {
+        return usuarioService.ativarUsuario(idUsuario);
+    }
+
+    @Tag(name = "Admin")
     @Operation(summary = "Desativa um usuário - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @PutMapping("/{idUsuario}/desativar")
+    @PutMapping("/admin/desativar/{idUsuario}")
     public UsuarioResponseDTO desativarUsuario(@PathVariable Long idUsuario) {
         return usuarioService.desativarUsuario(idUsuario);
     }
@@ -75,7 +83,7 @@ public class UsuarioController {
     @Tag(name = "Superior")
     @Operation(summary = "Retorna todos os usuários exceto ADMIN e LIDER (página da equipe) - Apenas para usuários com papel SUPERIOR")
     @Secured("ROLE_SUPERIOR")
-    @GetMapping("/lider")
+    @GetMapping("/superior/equipe")
     public Page<UsuarioResponseDTO> getAllUsersExceptAdminLider(
             @ParameterObject
             @PageableDefault(page = 0, size = 10)

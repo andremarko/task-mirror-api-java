@@ -4,99 +4,88 @@
 -- 1 LÍDER
 ---------------------------------------
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor
 ) VALUES (
-             'lider01',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUPERIOR',
-             'Gestão',
-             1,
-             'Coordenador',
-             'TI',
-             NULL
-         );
+'lider',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUPERIOR',
+'Gestão de Projetos',
+'Gerente',
+'Desenvolvimento'
+);
 
 ---------------------------------------
 -- 1 ADMIN
 ---------------------------------------
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao
 ) VALUES (
-             'admin01',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_ADMIN',
-             'Administração do sistema',
-             1,
-             'Administrador',
-             'TI',
-             NULL
-         );
+'admin',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_ADMIN',
+'Administração do Task Mirror' -- admin do task mirror
+);
 
 ---------------------------------------
 -- 5 SUBORDINADOS
 ---------------------------------------
 
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor, id_lider
 ) VALUES (
-             'sub01',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUBORDINADO',
-             'Desenvolvimento',
-             1,
-             'Analista',
-             'TI',
-             1
-         );
+'usuario-subordinado1',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUBORDINADO',
+'Desenvolvedor Full Stack',
+'Analista Desenvolvedor',
+'Desenvolvimento',
+1
+);
 
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor, id_lider
 ) VALUES (
-             'sub02',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUBORDINADO',
-             'Desenvolvimento',
-             1,
-             'Analista',
-             'TI',
-             1
-         );
+'usuario-subordinado2',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUBORDINADO',
+'Desenvolvedor Full Stack',
+'Analista Desenvolvedor',
+'Desenvolvimento',
+1
+);
 
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor, id_lider
 ) VALUES (
-             'sub03',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUBORDINADO',
-             'Desenvolvimento',
-             1,
-             'Analista',
-             'TI',
-             1
-         );
+'usuario-subordinado3',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUBORDINADO',
+'Desenvolvedor Full Stack',
+'Analista Desenvolvedor',
+'Desenvolvimento',
+1
+);
 
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor, id_lider
 ) VALUES (
-             'sub04',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUBORDINADO',
-             'Desenvolvimento',
-             1,
-             'Analista',
-             'TI',
-             1
-         );
+'usuario-subordinado4',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUBORDINADO',
+'Desenvolvedor Full Stack',
+'Analista Desenvolvedor',
+'Desenvolvimento',
+1
+);
 
 INSERT INTO tbl_usuarios (
-    username, password, role_usuario, funcao, ativo, cargo, setor, id_lider
+username, password, role_usuario, funcao, cargo, setor, id_lider
 ) VALUES (
-             'sub05',
-             '$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
-             'ROLE_SUBORDINADO',
-             'Desenvolvimento',
-             1,
-             'Analista',
-             'TI',
-             1
-         );
+'usuario-subordinado5',
+'$2y$12$BivcwEEHteyl8lo1GdVWqe3vgrsqNGljQkjWch4DQZlBKqY7TBxrG',
+'ROLE_SUBORDINADO',
+'Desenvolvedor Full Stack',
+'Analista Desenvolvedor',
+'Desenvolvimento',
+1
+);

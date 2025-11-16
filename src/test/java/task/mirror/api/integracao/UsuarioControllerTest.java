@@ -32,7 +32,7 @@ public class UsuarioControllerTest {
     @WithMockUser(roles = {"ADMIN", "SUPERIOR", "SUBORDINADO"})
     void getUsuariosById() throws Exception {
         // DEVE RETORNAR LIDER - ID_USUARIO = 1
-        mockMvc.perform(get("/api/usuarios/1")
+        mockMvc.perform(get("/api/usuarios/geral/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -45,7 +45,7 @@ public class UsuarioControllerTest {
     @WithMockUser(roles = "ADMIN")
     void getAllUsuariosForAdmin() throws Exception {
         // DEVE RETORNAR TODOS USUARIOS CADASTRADOS
-        mockMvc.perform(get("/api/usuarios/admin")
+        mockMvc.perform(get("/api/usuarios/admin/todos-usuarios")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -65,7 +65,7 @@ public class UsuarioControllerTest {
                     "setor": "TI"
                 }
                 """;
-        mockMvc.perform(post("/api/usuarios/admin")
+        mockMvc.perform(post("/api/usuarios/admin/criar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(usuarioJson))
                         .andDo(print())
@@ -86,7 +86,7 @@ public class UsuarioControllerTest {
             "idLider": 1
         }
         """;
-    mockMvc.perform(put("/api/usuarios/admin/8")
+    mockMvc.perform(put("/api/usuarios/admin/atualizar/8")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(usuarioJson))
             .andDo(print())
@@ -100,7 +100,7 @@ public class UsuarioControllerTest {
     @WithMockUser(roles = "SUPERIOR")
     void getAllUsersExceptAdminLider() throws Exception {
         // DEVE RETORNAR TODOS USUARIOS EXCETO ADMIN E LIDER
-        mockMvc.perform(get("/api/usuarios/lider")
+        mockMvc.perform(get("/api/usuarios/superior/equipe")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -113,9 +113,22 @@ public class UsuarioControllerTest {
     @WithMockUser(roles = "ADMIN")
     public void desativarUsuario() throws Exception {
         // DEVE DESATIVAR O USUARIO COM ID 6
-        mockMvc.perform(put("/api/usuarios/8/desativar")
+        mockMvc.perform(put("/api/usuarios/admin/desativar/5")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
+
+    @Test
+    @Order(7)
+    @WithMockUser(roles = "ADMIN")
+    public void ativarUsuario() throws Exception {
+        // DEVE DESATIVAR O USUARIO COM ID 6
+        mockMvc.perform(put("/api/usuarios/admin/ativar/5")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+
 }

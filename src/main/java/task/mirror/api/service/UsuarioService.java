@@ -119,6 +119,18 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(atualizado);
     }
 
+    // ADMIN
+    @Transactional
+    public UsuarioResponseDTO ativarUsuario(Long idUsuario) {
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
+        usuario.setAtivo(true);
+        Usuario atualizado = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponseDTO(atualizado);
+    }
+
+
     // Gera senha aleatoria
     private String generateRandomPassword(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
