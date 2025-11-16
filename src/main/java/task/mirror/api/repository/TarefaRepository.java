@@ -8,5 +8,5 @@ import task.mirror.api.model.Tarefa;
 
 @Repository
 public interface TarefaRepository extends JpaRepository<Tarefa, Long> {
-    Page<Tarefa> findByUsuarioIdUsuario(Long idUsuario, Pageable pageable);
+    Page<Tarefa> findByUsuarioUsername(String username, Pageable pageable);
 }

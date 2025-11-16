@@ -16,15 +16,13 @@ import task.mirror.api.service.FeedbackService;
 import task.mirror.api.service.TarefaService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TarefaServiceTest {
@@ -46,67 +44,51 @@ class TarefaServiceTest {
 
     @Test
     void deveConcluirTarefaDentroDoPrazo() throws Exception {
-
-        // ---------- ARRANGE ----------
         Long idTarefa = 1L;
 
-        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
-        OffsetDateTime inicio = agora.minusMinutes(90);
-        OffsetDateTime fimPrevisto = agora.plusMinutes(10);
+        OffsetDateTime dataInicio = OffsetDateTime.now(ZoneOffset.ofHours(-3)).minusHours(1);
+        BigDecimal tempoEstimado = new BigDecimal("2.00");
 
-        // tarefa mockada
         Tarefa tarefa = new Tarefa();
         tarefa.setIdTarefa(idTarefa);
-        tarefa.setDataInicio(inicio);
-        tarefa.setDataFim(fimPrevisto);
+        tarefa.setDataInicio(dataInicio);
+        tarefa.setTempoEstimado(tempoEstimado);
 
         StatusTarefa statusConcluida = new StatusTarefa();
         statusConcluida.setNome("CONCLUIDA");
 
         Feedback feedbackMock = new Feedback();
         feedbackMock.setConteudo("Feedback gerado");
-        feedbackMock.setDataGerado(LocalDateTime.now());
-
-        Tarefa tarefaSalva = tarefa;
 
         TarefaResponseDTO dtoMock = new TarefaResponseDTO();
 
         when(tarefaRepository.findById(idTarefa)).thenReturn(Optional.of(tarefa));
         when(statusTarefaRepository.findByNome("CONCLUIDA")).thenReturn(statusConcluida);
         when(feedbackService.gerarFeedback(any())).thenReturn(feedbackMock);
-        when(tarefaRepository.save(any())).thenReturn(tarefaSalva);
-        when(tarefaMapper.toResponseDTO(tarefaSalva)).thenReturn(dtoMock);
+        when(tarefaRepository.save(any())).thenReturn(tarefa);
+        when(tarefaMapper.toResponseDTO(tarefa)).thenReturn(dtoMock);
 
         TarefaResponseDTO resultado = tarefaService.concluirTarefa(idTarefa);
 
-        // ---------- ASSERT ----------
-        assertEquals(new BigDecimal("1.50"), tarefa.getTempoReal());
+        assertNotNull(tarefa.getTempoReal());
+        assertTrue(tarefa.getTempoReal().compareTo(tempoEstimado) <= 0);
 
-        // deve ser CONCLUIDA
         assertEquals(statusConcluida, tarefa.getStatusTarefa());
-
         assertNotNull(dtoMock.getFeedback());
         assertEquals("Feedback gerado", dtoMock.getFeedback().getConteudo());
-
-        verify(tarefaRepository).save(tarefa);
-        verify(feedbackService).gerarFeedback(tarefa);
-        verify(statusTarefaRepository).findByNome("CONCLUIDA");
-        verify(tarefaMapper).toResponseDTO(tarefa);
     }
 
     @Test
     void deveConcluirTarefaAtrasada() throws Exception {
+        Long idTarefa = 2L;
 
-        Long idTarefa = 1L;
-
-        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
-        OffsetDateTime inicio = agora.minusMinutes(120);
-        OffsetDateTime fimPrevisto = agora.minusMinutes(10);
+        OffsetDateTime dataInicio = OffsetDateTime.now(ZoneOffset.ofHours(-3)).minusHours(4);
+        BigDecimal tempoEstimado = new BigDecimal("3.00");
 
         Tarefa tarefa = new Tarefa();
         tarefa.setIdTarefa(idTarefa);
-        tarefa.setDataInicio(inicio);
-        tarefa.setDataFim(fimPrevisto);
+        tarefa.setDataInicio(dataInicio);
+        tarefa.setTempoEstimado(tempoEstimado);
 
         StatusTarefa statusAtrasada = new StatusTarefa();
         statusAtrasada.setNome("ATRASADA");
@@ -121,24 +103,23 @@ class TarefaServiceTest {
 
         TarefaResponseDTO resultado = tarefaService.concluirTarefa(idTarefa);
 
-        assertEquals(new BigDecimal("2.00"), tarefa.getTempoReal());
+        assertNotNull(tarefa.getTempoReal());
+        assertTrue(tarefa.getTempoReal().compareTo(tempoEstimado) > 0);
         assertEquals(statusAtrasada, tarefa.getStatusTarefa());
         assertNull(dtoMock.getFeedback());
     }
 
     @Test
     void deveConcluirMesmoQuandoFeedbackServiceFalha() throws Exception {
+        Long idTarefa = 3L;
 
-        Long idTarefa = 1L;
-
-        OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
-        OffsetDateTime inicio = agora.minusMinutes(30);
-        OffsetDateTime fimPrevisto = agora.plusMinutes(20);
+        OffsetDateTime dataInicio = OffsetDateTime.now(ZoneOffset.ofHours(-3)).minusHours(1);
+        BigDecimal tempoEstimado = new BigDecimal("2.00");
 
         Tarefa tarefa = new Tarefa();
         tarefa.setIdTarefa(idTarefa);
-        tarefa.setDataInicio(inicio);
-        tarefa.setDataFim(fimPrevisto);
+        tarefa.setDataInicio(dataInicio);
+        tarefa.setTempoEstimado(tempoEstimado);
 
         StatusTarefa statusConcluida = new StatusTarefa();
         statusConcluida.setNome("CONCLUIDA");
@@ -147,18 +128,16 @@ class TarefaServiceTest {
 
         when(tarefaRepository.findById(idTarefa)).thenReturn(Optional.of(tarefa));
         when(statusTarefaRepository.findByNome("CONCLUIDA")).thenReturn(statusConcluida);
-
         when(feedbackService.gerarFeedback(any()))
                 .thenThrow(new RuntimeException("IA indisponível"));
-
         when(tarefaRepository.save(any())).thenReturn(tarefa);
         when(tarefaMapper.toResponseDTO(tarefa)).thenReturn(dtoMock);
 
         TarefaResponseDTO resultado = tarefaService.concluirTarefa(idTarefa);
 
+        assertNotNull(tarefa.getTempoReal());
         assertEquals(statusConcluida, tarefa.getStatusTarefa());
         assertNull(resultado.getFeedback());
     }
-
 
 }

@@ -44,12 +44,11 @@ public class TarefaControllerTest {
           "idLider": 1,
           "idTipoTarefa": 2,
           "descricao": "Descricao Teste",
-          "tempoEstimado": 5,
-          "dataFim": "2025-11-23T23:59:59Z"
+          "tempoEstimado": 5
          }
         """;
 
-        mockMvc.perform(post("/api/tarefas")
+        mockMvc.perform(post("/api/tarefas/superior/criar")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tarefaJson))
                 .andExpect(status().isCreated());
@@ -64,12 +63,11 @@ public class TarefaControllerTest {
         "idUsuario": 3,
         "idTipoTarefa": 2,
         "descricao": "Descricao Teste Atualizada",
-        "tempoEstimado": 6,
-        "dataFim": "2025-11-23T23:59:59Z"
+        "tempoEstimado": 6
         }
         """;
 
-        mockMvc.perform(put("/api/tarefas/6")
+        mockMvc.perform(put("/api/tarefas/superior/atualizar/6")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(tarefaJson))
                 .andExpect(status().isNoContent());
@@ -81,7 +79,7 @@ public class TarefaControllerTest {
     @Order(3)
     @WithMockUser(roles="SUPERIOR")
     void getAllTarefas() throws Exception {
-        mockMvc.perform(get("/api/tarefas")
+        mockMvc.perform(get("/api/tarefas/superior/tarefas-equipe")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -92,9 +90,9 @@ public class TarefaControllerTest {
 
     @Test
     @Order(4)
-    @WithMockUser(username="sub01", roles="SUBORDINADO")
+    @WithMockUser(username="usuario-subordinado1", roles="SUBORDINADO")
     void getTarefasDoSubordinado() throws Exception {
-        mockMvc.perform(get("/api/tarefas/meu-perfil")
+        mockMvc.perform(get("/api/tarefas/subordinado/tarefas")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -102,9 +100,9 @@ public class TarefaControllerTest {
 
     @Test
     @Order(5)
-    @WithMockUser(username="sub01", roles="SUBORDINADO")
+    @WithMockUser(username="usuario-subordinado1", roles="SUBORDINADO")
     void concluirTarefa() throws Exception {
-        mockMvc.perform(put("/api/tarefas/6/concluir")
+        mockMvc.perform(put("/api/tarefas/subordinado/concluir/1")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -115,7 +113,7 @@ public class TarefaControllerTest {
 
     @Test
     @Order(6)
-    @WithMockUser(username="sub01", roles="SUBORDINADO")
+    @WithMockUser(username="usuario-subordinado1", roles="SUBORDINADO")
     void getTarefaById() throws Exception {
         mockMvc.perform(get("/api/tarefas/1")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -130,7 +128,7 @@ public class TarefaControllerTest {
     // DELEÇÃO FÍSICA
     @WithMockUser(roles="SUPERIOR")
     void deleteTarefa() throws Exception {
-        mockMvc.perform(delete("/api/tarefas/6")
+        mockMvc.perform(delete("/api/tarefas/superior/deletar/6")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }

@@ -36,13 +36,4 @@ public class TarefaRequestDTO {
     @Positive(message = "O tempo estimado deve ser positivo")
     @Digits(integer = 3, fraction = 2, message = "O tempo estimado deve ter no máximo 3 dígitos inteiros e 2 decimais")
     private BigDecimal tempoEstimado;
-
-    @Schema(description = "Data inicio da tarefa - manter nulo - definido automaticamente na criação da tarefa", example="")
-    // inicio da tarefa definido na criação da tarefa
-    private OffsetDateTime dataInicio;
-
-    // data fim definido pelo lider
-    @Schema(description = "Data final + hora limite da tarefa", example="2025-11-14T22:59:59")
-    @NotNull(message = "A data de fim é obrigatória")
-    private OffsetDateTime dataFim;
 }

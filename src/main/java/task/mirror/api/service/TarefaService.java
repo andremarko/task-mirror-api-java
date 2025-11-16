@@ -69,10 +69,9 @@ public class TarefaService {
         tarefa.setTipoTarefa(tipo);
         tarefa.setDescricao(dto.getDescricao());
         tarefa.setTempoEstimado(dto.getTempoEstimado()); // em horas ex 2.5 (2 horas e meia)
-        tarefa.setDataInicio(dto.getDataInicio() != null ? dto.getDataInicio() : OffsetDateTime.now(ZoneOffset.ofHours(-3))); // data de criação definida automaticamente
+        OffsetDateTime dataInicio = OffsetDateTime.now(ZoneOffset.ofHours(-3));
+        tarefa.setDataInicio(dataInicio); // data de criação definida automaticamente
         tarefa.setStatusTarefa(statusTarefaRepository.findByNome("PENDENTE")); // STATUS DEFINIDO AUTOMATICAMENTE NA CRIAÇÃO DA TAREFA
-        tarefa.setDataFim(dto.getDataFim().withOffsetSameInstant(ZoneOffset.ofHours(-3)));
-
         tarefa = tarefaRepository.save(tarefa);
 
         // cria tarefa relacionada a um usuario - tela "minha equipe"
@@ -98,7 +97,6 @@ public class TarefaService {
 
         tarefa.setDescricao(dto.getDescricao());
         tarefa.setTempoEstimado(dto.getTempoEstimado());
-        tarefa.setDataFim(dto.getDataFim().withOffsetSameInstant(ZoneOffset.ofHours(-3)));
 
         if (dto.getIdTipoTarefa() != null) {
             TipoTarefa tipoTarefa = tipoTarefaRepository.findById(dto.getIdTipoTarefa())
@@ -166,23 +164,20 @@ public class TarefaService {
                 .orElseThrow(() -> new EntityNotFoundException("Tarefa não encontrada"));
 
         OffsetDateTime agora = OffsetDateTime.now(ZoneOffset.ofHours(-3));
+        tarefa.setDataFim(agora);
 
-        // calcula o tempo real em horas com duas casas decimais
-        long minutos = java.time.Duration.between(tarefa.getDataInicio(), agora).toMinutes();
+        long minutos = Duration.between(tarefa.getDataInicio(), agora).toMinutes();
         BigDecimal tempoReal = BigDecimal.valueOf(minutos)
-                .divide(BigDecimal.valueOf(60), 2, BigDecimal.ROUND_HALF_UP);
+                .divide(BigDecimal.valueOf(60), 2, RoundingMode.HALF_UP);
         tarefa.setTempoReal(tempoReal);
 
-        // define status
-        StatusTarefa status = agora.isAfter(tarefa.getDataFim())
+        StatusTarefa status = tempoReal.compareTo(tarefa.getTempoEstimado()) > 0
                 ? statusTarefaRepository.findByNome("ATRASADA")
                 : statusTarefaRepository.findByNome("CONCLUIDA");
         tarefa.setStatusTarefa(status);
 
-        // salva tarefa
         tarefaRepository.save(tarefa);
 
-        // monta DTO
         TarefaResponseDTO response = tarefaMapper.toResponseDTO(tarefa);
 
         try {
@@ -197,11 +192,10 @@ public class TarefaService {
         return response;
     }
 
-
-    // PERFIL DO USUARIO (SUBORDINADO)
-    @Transactional(readOnly = true)
-    public Page<TarefaResumoSubordinadoDTO> getTarefasDoUsuario(Long idUsuario, Pageable pageable) {
-        Page<Tarefa> tarefas = tarefaRepository.findByUsuarioIdUsuario(idUsuario, pageable);
+    // PERFIL DO USUARIO (SUBORDINADO) - LISTA TODAS TAREFAS ASSOCIADAS AO USUARIO LOGADO
+    public Page<TarefaResumoSubordinadoDTO> getTarefasDoUsuarioAutenticado(Pageable pageable, Principal principal) {
+        String username = principal.getName();
+        Page<Tarefa> tarefas = tarefaRepository.findByUsuarioUsername(username, pageable);
         return tarefas.map(tarefaMapper::toResumoSubordinadoDTO);
     }
 }
