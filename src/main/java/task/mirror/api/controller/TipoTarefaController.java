@@ -1,5 +1,6 @@
 package task.mirror.api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
@@ -19,6 +20,7 @@ public class TipoTarefaController {
     private TipoTarefaService tipoTarefaService;
 
     @Tag(name = "Superior")
+    @Operation(summary = "Retorna todos os tipos de tarefa - Apenas para usuários com papel SUPERIOR (Líderes) - alimenta dropdown na criação de tarefas")
     @Secured({"ROLE_SUPERIOR"})
     @GetMapping
     public List<TipoTarefaResponseDTO> getAll() {
