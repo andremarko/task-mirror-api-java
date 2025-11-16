@@ -1,0 +1,17 @@
+-- Inserindo status de tarefas
+INSERT INTO tbl_status_tarefa (nome) VALUES
+('PENDENTE'),
+('CONCLUIDA'),
+('ATRASADA');
+
+-- Inserindo tipos de tarefas
+INSERT INTO tbl_tipo_tarefa (nome) VALUES
+('PLANEJAMENTO / ORGANIZACAO'),
+('EXECUCAO / OPERACAO'),
+('ANALISE / PESQUISA'),
+('SUPORTE / ATENDIMENTO'),
+('REVISAO / VERIFICACAO'),
+('DOCUMENTACAO'),
+('MANUTENCAO / AJUSTE'),
+('COMUNICACAO / REUNIOES'),
+('AUDITORIA / CONTROLE');
