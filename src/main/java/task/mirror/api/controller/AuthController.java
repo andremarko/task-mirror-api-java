@@ -19,6 +19,21 @@ import java.util.List;
 @Tag(name="Autenticação")
 @RestController
 @RequestMapping("/login")
+@Tag(
+        name="Autenticação",
+        description = """
+        
+        - **admin**
+        - **lider**
+        - **usuario-subordinado1**
+        - **usuario-subordinado2**
+        - **usuario-subordinado3**
+        - **usuario-subordinado4**
+        - **usuario-subordinado5**        
+        
+        Senha padrão: **senha123**
+        """
+)
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;

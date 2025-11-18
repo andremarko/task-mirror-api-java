@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LoginRequestDTO {
-    @Schema(description = "Username", example="admin01")
+    @Schema(description = "Username", example="admin")
     private String username;
-    @Schema(description = "Senha", example="senha123")
+    @Schema(description = "Senha (nos usuários cadastrados nas migrations, todos definidos como senha123", example="senha123")
     private String password;
 }
