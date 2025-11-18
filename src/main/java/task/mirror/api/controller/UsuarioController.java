@@ -14,6 +14,8 @@ import task.mirror.api.dto.request.UsuarioRequestDTO;
 import task.mirror.api.dto.response.UsuarioResponseDTO;
 import task.mirror.api.service.UsuarioService;
 
+import java.security.Principal;
+
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -58,8 +60,10 @@ public class UsuarioController {
     public Page<UsuarioResponseDTO> getAllForAdmin(
             @ParameterObject
             @PageableDefault(page = 0, size = 10)
-            Pageable pageable) {
-        return usuarioService.getAllForAdmin(pageable);
+            Pageable pageable,
+            Principal principal
+            ) {
+        return usuarioService.getAllForAdmin(pageable, principal);
     }
 
     @Tag(name = "Admin")

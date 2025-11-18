@@ -13,6 +13,7 @@ import task.mirror.api.mapper.UsuarioMapper;
 import task.mirror.api.model.Usuario;
 import task.mirror.api.repository.UsuarioRepository;
 
+import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.List;
 
@@ -102,8 +103,15 @@ public class UsuarioService {
 
     // ADMIN
     @Transactional(readOnly = true)
-    public Page<UsuarioResponseDTO> getAllForAdmin(Pageable pageable) {
-        Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
+    public Page<UsuarioResponseDTO> getAllForAdmin(Pageable pageable, Principal principal) {
+        String username = principal.getName();
+
+        Long idUsuarioLogado = usuarioRepository
+                .findByUsername(username)
+                .orElseThrow()
+                .getIdUsuario();
+
+        Page<Usuario> usuarios = usuarioRepository.findAllByIdUsuarioNot(idUsuarioLogado, pageable);
         return usuarios.map(usuarioMapper::toResponseDTO);
     }
 

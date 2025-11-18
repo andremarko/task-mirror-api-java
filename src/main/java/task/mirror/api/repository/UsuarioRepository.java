@@ -20,5 +20,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("UPDATE Usuario u SET u.ativo = false WHERE u.idUsuario = :idUsuario")
     void desativarPorId(@Param("idUsuario") Long idUsuario);
     Page<Usuario> findByAtivoTrueAndRoleUsuarioNotIn(List<String> roles, Pageable pageable);
+    Page<Usuario> findAllByIdUsuarioNot(Long idUsuario, Pageable pageable);
     Optional<Usuario> findByUsername(String username);
+
 }
