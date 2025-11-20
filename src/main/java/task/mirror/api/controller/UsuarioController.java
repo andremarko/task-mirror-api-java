@@ -117,7 +117,7 @@ public class UsuarioController {
         Long totalAtivos = usuarioService.getTotalUsuariosAtivos();
         return ResponseEntity.ok(totalAtivos);
     }
-
+    
     @Tag(name="Admin")
     @Secured("ROLE_ADMIN")
     @GetMapping("/admin/todos-lideres/")
@@ -128,7 +128,7 @@ public class UsuarioController {
             Pageable pageable) {
         return ResponseEntity.ok(usuarioService.getAllLideres(pageable));
     }
-
+    
     // ======= SUPERIOR
     @Tag(name = "Superior")
     @Operation(summary = "Retorna todos os usuários exceto ADMIN e LIDER (página da equipe) - Apenas para usuários com papel SUPERIOR")
