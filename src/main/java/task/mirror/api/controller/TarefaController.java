@@ -1,13 +1,11 @@
 package task.mirror.api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.tags.Tags;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -115,7 +113,7 @@ public class TarefaController {
     @Tag(name = "Admin")
     @Operation(summary = "Retorna o tempo médio de conclusão de todas as tarefas - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @GetMapping("/admin/tempo-medio-conclusao")
+    @GetMapping("/admin/estatistica/tempo-medio-conclusao")
     public ResponseEntity<BigDecimal> getTempoMedioConclusao() {
         BigDecimal tempoMedio = tarefaService.getTempoMedioConclusaoTotal();
         if (tempoMedio == null) {
@@ -127,7 +125,7 @@ public class TarefaController {
     @Tag(name = "Admin")
     @Operation(summary = "Retorna o número total de tarefas por status - Apenas para usuários com papel ADMIN")
     @Secured("ROLE_ADMIN")
-    @GetMapping("/admin/total-tarefas-por-status")
+    @GetMapping("/admin/estatistica/total-tarefas-por-status")
     public ResponseEntity<String> getTotalTarefasPorStatus() {
         String jsonResult = tarefaService.getQuantidadeTarefasPorStatus();
         if (jsonResult != null && !jsonResult.isEmpty()) {
@@ -144,7 +142,7 @@ public class TarefaController {
     )
     @Operation(summary = "Retorna o número total de tarefas no sistema - Apenas para usuários com papel ADMIN e SUPERIOR")
     @Secured({"ROLE_ADMIN", "ROLE_SUPERIOR"})
-    @GetMapping("/total-tarefas")
+    @GetMapping("/estatistica/total-tarefas")
     public ResponseEntity<Long> getTotalTarefas() {
         long totalTarefas = tarefaService.getTotalTarefas();
         return ResponseEntity.ok(totalTarefas);
