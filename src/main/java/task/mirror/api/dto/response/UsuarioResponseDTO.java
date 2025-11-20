@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class UsuarioResponseDTO {
     private Long idUsuario;
     private Long idLider;
+    private String roleUsuario;
     private String username;
     private String funcao;
     private String cargo;
