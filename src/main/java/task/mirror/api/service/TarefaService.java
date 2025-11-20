@@ -18,6 +18,7 @@ import task.mirror.api.repository.UsuarioRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.Principal;
+import java.sql.Clob;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
@@ -193,10 +194,31 @@ public class TarefaService {
     }
 
     // PERFIL DO USUARIO (SUBORDINADO) - LISTA TODAS TAREFAS ASSOCIADAS AO USUARIO LOGADO
+    @Transactional(readOnly = true)
     public Page<TarefaResumoSubordinadoDTO> getTarefasDoUsuarioAutenticado(Pageable pageable, Principal principal) {
         String username = principal.getName();
         Page<Tarefa> tarefas = tarefaRepository.findByUsuarioUsername(username, pageable);
         return tarefas.map(tarefaMapper::toResumoSubordinadoDTO);
+    }
+
+    // ========================= ADMIN =========================
+    // ======================== RELATÓRIOS =========================
+
+    // tempo médio de conclusão de todas as tarefas concluídas no sistema
+    @Transactional(readOnly = true)
+    public BigDecimal getTempoMedioConclusaoTotal() {
+        BigDecimal tempoMedio = tarefaRepository.calcularTempoMedioConclusaoTotal();
+        return tempoMedio != null ? tempoMedio : BigDecimal.ZERO;
+    }
+
+    @Transactional(readOnly = true)
+    public String getQuantidadeTarefasPorStatus() {
+        return statusTarefaRepository.qtdTarefasPorStatus();
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalTarefas() {
+        return tarefaRepository.count();
     }
 }
 

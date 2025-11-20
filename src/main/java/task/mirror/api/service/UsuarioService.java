@@ -13,6 +13,7 @@ import task.mirror.api.mapper.UsuarioMapper;
 import task.mirror.api.model.Usuario;
 import task.mirror.api.repository.UsuarioRepository;
 
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.security.SecureRandom;
 import java.util.List;
@@ -138,6 +139,10 @@ public class UsuarioService {
         return usuarioMapper.toResponseDTO(atualizado);
     }
 
+    @Transactional(readOnly = true)
+    public BigDecimal getProdutividadeUsuario(Long idUsuario) {
+        return usuarioRepository.calcularProdutividadeUsuario(idUsuario);
+    }
 
     // Gera senha aleatoria
     private String generateRandomPassword(int length) {
