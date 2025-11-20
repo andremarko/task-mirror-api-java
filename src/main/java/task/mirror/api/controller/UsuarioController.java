@@ -94,7 +94,7 @@ public class UsuarioController {
         tags = { "Admin" }
     )
     @Secured("ROLE_ADMIN")
-    @GetMapping("/admin/produtividade/{idUsuario}")
+    @GetMapping("/admin/estatistica/produtividade/{idUsuario}")
     public ResponseEntity<BigDecimal> produtividadeUsuario(@PathVariable Long idUsuario) {
         try {
             BigDecimal produtividade = usuarioService.getProdutividadeUsuario(idUsuario);
@@ -107,6 +107,15 @@ public class UsuarioController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @Tag(name="Admin")
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/admin/estatistica/total-usuarios-ativos")
+    @Operation(summary = "Retorna o número total de usuários ativos no sistema - Apenas para usuários com papel ADMIN")
+    public ResponseEntity<Long> getTotalUsuariosAtivos() {
+        Long totalAtivos = usuarioService.getTotalUsuariosAtivos();
+        return ResponseEntity.ok(totalAtivos);
     }
 
     // ======= SUPERIOR

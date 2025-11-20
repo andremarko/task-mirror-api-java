@@ -26,4 +26,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query(value = "SELECT task_mirror_pkg.fn_produtividade_usuario(?1) FROM DUAL",
             nativeQuery = true)
     BigDecimal calcularProdutividadeUsuario(Long idUsuario);
+    Long countUsuariosByAtivo(Boolean ativo);
 }

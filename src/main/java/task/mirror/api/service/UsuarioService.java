@@ -144,6 +144,11 @@ public class UsuarioService {
         return usuarioRepository.calcularProdutividadeUsuario(idUsuario);
     }
 
+    @Transactional(readOnly = true)
+    public Long getTotalUsuariosAtivos() {
+        return usuarioRepository.countUsuariosByAtivo(true);
+    }
+
     // Gera senha aleatoria
     private String generateRandomPassword(int length) {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%";
