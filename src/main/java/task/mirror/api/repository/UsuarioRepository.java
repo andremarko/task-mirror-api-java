@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import task.mirror.api.model.Usuario;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,5 +23,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Page<Usuario> findByAtivoTrueAndRoleUsuarioNotIn(List<String> roles, Pageable pageable);
     Page<Usuario> findAllByIdUsuarioNot(Long idUsuario, Pageable pageable);
     Optional<Usuario> findByUsername(String username);
-
+    @Query(value = "SELECT task_mirror_pkg.fn_produtividade_usuario(?1) FROM DUAL",
+            nativeQuery = true)
+    BigDecimal calcularProdutividadeUsuario(Long idUsuario);
 }
