@@ -45,7 +45,7 @@ public class FeedbackService {
               "messages": [
                 {
                   "role": "user",
-                  "content": "Gere um feedback curto sobre a tarefa '%s'. Tempo estimado: %.2f horas, tempo real: %.2f horas. Descrição: %s"
+                  "content": "Analise a tarefa '%s' e gere um feedback profissional e conciso. Use os dados abaixo: \\n- Tempo estimado: %.2f horas\\n- Tempo real: %.2f horas\\n- Descrição da tarefa: %s\\n\\nInstruções detalhadas para o feedback:\\n1. Inicie reconhecendo o desempenho ou esforço do responsável.\\n2. Compare o tempo estimado com o tempo real, fornecendo uma análise breve sobre produtividade, eficiência ou necessidade de ajustes na estimativa.\\n3. Comente de forma objetiva sobre a execução da tarefa com base na descrição, destacando um ponto forte ou uma oportunidade clara de melhoria.\\n4. Use linguagem técnica, precisa e motivadora, adequada a gestores ou especialistas.\\n5. Mantenha o feedback em 1 ou 2 frases, evitando generalizações ou redundâncias.\\n6. Opcional: sugira um pequeno ajuste ou recomendação prática para tarefas futuras, sem se alongar."
                 }
               ],
               "stream": false
