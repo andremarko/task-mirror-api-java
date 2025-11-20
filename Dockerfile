@@ -9,15 +9,15 @@ RUN mvn clean package -DskipTests
 
 FROM eclipse-temurin:21-jdk
 
-RUN useradd -m -s /bin/bash mapping-backend
+RUN useradd -m -s /bin/bash taskmirror
 
 WORKDIR /app
 
-COPY --from=build /build/target/task-mirror-api-0.0.1-SNAPSHOT.jar /apptask-mirror-api-0.0.1-SNAPSHOT.jar
+COPY --from=build /build/target/task-mirror-api-0.0.1-SNAPSHOT.jar /app/task-mirror-api-0.0.1-SNAPSHOT.jar
 
-RUN chown -R mapping-backend:mapping-backend /app
+RUN chown -R taskmirror:taskmirror /app
 
-USER mapping-backend
+USER taskmirror
 
 EXPOSE 8080
 
