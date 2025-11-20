@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import task.mirror.api.dto.request.UsuarioRequestDTO;
+import task.mirror.api.dto.response.LiderResponseDTO;
 import task.mirror.api.dto.response.UsuarioResponseDTO;
 import task.mirror.api.mapper.UsuarioMapper;
 import task.mirror.api.model.Usuario;
@@ -147,6 +148,13 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Long getTotalUsuariosAtivos() {
         return usuarioRepository.countUsuariosByAtivo(true);
+    }
+
+    // LISTA TODOS LIDERES
+    @Transactional(readOnly = true)
+    public Page<LiderResponseDTO> getAllLideres(Pageable pageable) {
+        Page<Usuario> lideres = usuarioRepository.findByAtivoTrueAndRoleUsuarioNotIn(List.of("ROLE_SUBORDINADO", "ROLE_ADMIN"), pageable);
+        return lideres.map(usuarioMapper::toLiderResponseDTO);
     }
 
     // Gera senha aleatoria
