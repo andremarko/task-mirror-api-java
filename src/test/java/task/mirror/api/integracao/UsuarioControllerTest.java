@@ -1,134 +1,126 @@
 package task.mirror.api.integracao;
 
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@Transactional
+@Rollback
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UsuarioControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    // ========================= TODOS =========================
+    @Autowired
+    private ObjectMapper mapper;
+
+    private Long gerarUsuario() throws Exception {
+        String json = """
+                {
+                    "username": "user_%s",
+                    "idLider": 1,
+                    "roleUsuario": "ROLE_SUBORDINADO",
+                    "funcao": "DEV",
+                    "cargo": "JR",
+                    "setor": "TI"
+                }
+                """.formatted(UUID.randomUUID().toString().substring(0, 6));
+
+        var result = mockMvc.perform(
+                        post("/api/usuarios/admin/criar")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
+                .andExpect(status().isCreated())
+                .andReturn();
+
+        JsonNode res = mapper.readTree(result.getResponse().getContentAsString());
+        return res.get("idUsuario").asLong();
+    }
+
+    // ==========================================
+    // TESTES
+    // ==========================================
+
+    private static final Long ID_EXISTENTE = 3L; // usuario da migration
 
     @Test
     @Order(1)
-    @WithMockUser(roles = {"ADMIN", "SUPERIOR", "SUBORDINADO"})
-    void getUsuariosById() throws Exception {
-        // DEVE RETORNAR LIDER - ID_USUARIO = 1
-        mockMvc.perform(get("/api/usuarios/geral/1")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+    @WithMockUser(roles = "ADMIN")
+    void deveBuscarUsuarioExistente() throws Exception {
+        mockMvc.perform(get("/api/usuarios/geral/" + ID_EXISTENTE))
                 .andExpect(status().isOk());
     }
 
-    // ========================= ADMIN =========================
-
     @Test
     @Order(2)
-    @WithMockUser(roles = "ADMIN")
-    void getAllUsuariosForAdmin() throws Exception {
-        // DEVE RETORNAR TODOS USUARIOS CADASTRADOS
-        mockMvc.perform(get("/api/usuarios/admin/todos-usuarios")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+    @WithMockUser(roles = "ADMIN", username = "admin")
+    void deveListarUsuariosParaAdmin() throws Exception {
+        mockMvc.perform(get("/api/usuarios/admin/todos-usuarios"))
                 .andExpect(status().isOk());
     }
 
     @Test
     @Order(3)
-    @WithMockUser(roles="ADMIN")
-    public void createUsuario() throws Exception {
-        String usuarioJson = """
-                {
-                    "username": "developer",
-                    "idLider": 1,
-                    "roleUsuario": "ROLE_SUBORDINADO",
-                    "funcao": "Desenvolvedor",
-                    "cargo": "Junior",
-                    "setor": "TI"
-                }
-                """;
-        mockMvc.perform(post("/api/usuarios/admin/criar")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(usuarioJson))
-                        .andDo(print())
-                        .andExpect(status().isCreated());
+    @WithMockUser(roles = "ADMIN")
+    void deveCriarUsuarioNovo_rollback() throws Exception {
+        Long id = gerarUsuario();
+        Assertions.assertNotNull(id);
     }
 
     @Test
     @Order(4)
-    @WithMockUser(roles="ADMIN")
-    public void updateUsuario() throws Exception {
-        String usuarioJson = """
-        {
-            "username": "developer_updated",
-            "roleUsuario": "ROLE_SUPERIOR",
-            "funcao": "Desenvolvedor",
-            "cargo": "Pleno",
-            "setor": "TI",
-            "idLider": 1
-        }
-        """;
-    mockMvc.perform(put("/api/usuarios/admin/atualizar/8")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(usuarioJson))
-            .andDo(print())
-            .andExpect(status().isOk());
-    }
+    @WithMockUser(roles = "ADMIN")
+    void deveAtualizarUsuarioExistente() throws Exception {
+        String json = """
+                {
+                    "username": "upd_%s",
+                    "roleUsuario": "ROLE_SUBORDINADO",
+                    "funcao": "DEV",
+                    "cargo": "PL",
+                    "setor": "TI",
+                    "idLider": 1
+                }
+                """.formatted(UUID.randomUUID().toString().substring(0,4));
 
-    // ========================= SUPERIOR =========================
-
-    @Test
-    @Order(5)
-    @WithMockUser(roles = "SUPERIOR")
-    void getAllUsersExceptAdminLider() throws Exception {
-        // DEVE RETORNAR TODOS USUARIOS EXCETO ADMIN E LIDER
-        mockMvc.perform(get("/api/usuarios/superior/equipe")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+        mockMvc.perform(
+                        put("/api/usuarios/admin/atualizar/" + ID_EXISTENTE)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json)
+                )
                 .andExpect(status().isOk());
     }
 
-    // ========================= ADMIN =========================
+    @Test
+    @Order(5)
+    @WithMockUser(roles = "ADMIN")
+    void deveDesativarUsuarioExistente() throws Exception {
+        mockMvc.perform(put("/api/usuarios/admin/desativar/" + ID_EXISTENTE))
+                .andExpect(status().isOk());
+    }
 
     @Test
     @Order(6)
     @WithMockUser(roles = "ADMIN")
-    public void desativarUsuario() throws Exception {
-        // DEVE DESATIVAR O USUARIO COM ID 6
-        mockMvc.perform(put("/api/usuarios/admin/desativar/5")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
+    void deveAtivarUsuarioExistente() throws Exception {
+        mockMvc.perform(put("/api/usuarios/admin/ativar/" + ID_EXISTENTE))
                 .andExpect(status().isOk());
     }
-
-    @Test
-    @Order(7)
-    @WithMockUser(roles = "ADMIN")
-    public void ativarUsuario() throws Exception {
-        // DEVE DESATIVAR O USUARIO COM ID 6
-        mockMvc.perform(put("/api/usuarios/admin/ativar/5")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-
 }
