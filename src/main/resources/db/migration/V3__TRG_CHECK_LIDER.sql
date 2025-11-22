@@ -1,4 +1,4 @@
-CREATE OR REPLACE TRIGGER bfi_trg_check_lider
+CREATE OR REPLACE TRIGGER trg_bfi_check_lider
 FOR INSERT OR UPDATE ON tbl_usuarios
                          COMPOUND TRIGGER
 
@@ -30,5 +30,5 @@ END IF;
 END LOOP;
 END AFTER STATEMENT;
 
-END bfi_trg_check_lider;
+END trg_bfi_check_lider;
 /
