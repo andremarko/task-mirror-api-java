@@ -48,7 +48,7 @@ Para os colaboradores, o TaskMirror disponibiliza uma área dedicada onde podem 
 | Funcionalidade            | Responsável                                                   | Descrição                                                                                             |
 |---------------------------|---------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | Gerenciamento de Tarefas  | ROLE_SUPERIOR (Líder)                                         | Criação, atribuição, leitura, atualização e exclusão de tarefas. Visualização da equipe.              |
-| Gerenciamento de Usuários | ROLE_ADMIN (Administrador)                                    | Criação, leitura, atualização e desativação de usuários.                                              |
+| Gerenciamento de Usuários | ROLE_ADMIN (Administrador)                                    | Criação, leitura, atualização e desativação de usuários. Visualização de métricas.                    |
 | Gerenciamentoe de Tarefas | ROLE_SUBORDINADO  (Membro da equipe, que responde a um líder) | Visualização de tarefas atribuídas, conclusão de tarefas e visualização de feedbacks para cada tarefa |
 
 ## Estrutura do projeto
@@ -183,46 +183,85 @@ e produtividade individual.
 A documentação completa dos endpoints da API pode ser acessada via Swagger UI após iniciar a aplicação.
 
 - URL do Swagger UI (localmente): `http://localhost:8080/swagger`
-- URL do Swagger UI (deploy no Render): `https://taskmirror.onrender.com/swagger` <!-- INSERIR LINK ATUALIZADO -->
+- URL do Swagger UI (deploy no Render): `https://task-mirror-api-java.onrender.com/swagger` <!-- INSERIR LINK ATUALIZADO -->
 
-| Objeto  | Quem executa           | Objetivo                                                            | Método                                                              | Endpoint                            |
-|---------|------------------------|---------------------------------------------------------------------|---------------------------------------------------------------------|-------------------------------------|
-| Usuario | ADMIN                  | Criar usuário                                                       | POST                                                                | /api/usuarios/admin/criar           |
-| Usuario | ADMIN                  | Listar todos usuários do sistema (com exceção ele mesmo             | GET                                                                 | /api/usuarios/admin/todos-usuarios  |
-| Usuario | ADMIN                  | Atualizar usuário                                                   | PUT                                                                 | /api/usuarios/admin/atualizar/{idUsuario} |
-| Usuario | ADMIN                  | Desativar usuário                                                   | PUT                                                                 | /api/usuarios/admin/desativar/{idUsuario} |
-| Usuario | ADMIN                  | Ativar usuário                                                      | PUT                                                                 | /api/usuarios/admin/ativar/{idUsuario} |
-| Tarefa  | SUPERIOR               | Criar tarefa                                                        | POST                                                                | /api/tarefas/superior/criar         |
-| Tarefa  | SUPERIOR               | Listar equipe                                                       | GET                                                                 | /api/tarefas/superior/equipe        |
-| Tarefa  | SUPERIOR               | Atualizar tarefa                                                    | PUT                                                                 | /api/tarefas/superior/atualizar/{idTarefa} |
-| Tarefa  | SUPERIOR               | Deletar tarefa                                                      | DELETE                                                              | /api/tarefas/superior/deletar/{idTarefa} |
-| Tarefa  | SUPERIOR e SUBORDINADO | Listar tarefa por ID                                                | GET                                                                 | /api/tarefas/{idTarefa}             |
-| Tarefa  | SUPERIOR               | Listar todas as tarefas da equipe                                   | GET                                                                 | /api/tarefas/superior/tarefas-equipe |
-| Tarefa  | SUPERIOR               | Listar tipos de tarefa (alimenta dropdown na criação de uma tarefa) | GET                                                                 | /api/tipo-tarefa                    |
-| Tarefa  | SUBORDINADO            | Listar tarefas atribuídas ao subordinado logado                     | GET                                                                 | /api/tarefas/subordinado/tarefas    |
-| Tarefa  | SUBORDINADO            | Marcar tarefa como concluída e gerar feedback relacionado a tarefa  | PUT                                                                 | /api/tarefas/subordinado/concluir/{idTarefa} |
-| Usuario | TODOS |                | Retorna dados do usuário por ID                                     | GET  | /api/usuarios/geral/{idUsuario}  |
-| Login   | TODOS |                | Autenticar usuário e gerar token JWT                                | POST                                                                | /login                          |
+| Objeto  | Quem executa           | Objetivo                                                            | Método | Endpoint |
+|---------|------------------------|---------------------------------------------------------------------|--------|----------|
+| Login   | TODOS                  | Autenticar usuário e gerar token JWT                               | POST   | /login |
+| Usuario | ADMIN                  | Criar usuário                                                       | POST   | /api/usuarios/admin/criar |
+| Usuario | ADMIN                  | Listar todos usuários do sistema                                   | GET    | /api/usuarios/admin/todos-usuarios |
+| Usuario | ADMIN                  | Atualizar usuário                                                   | PUT    | /api/usuarios/admin/atualizar/{idUsuario} |
+| Usuario | ADMIN                  | Desativar usuário                                                   | PUT    | /api/usuarios/admin/desativar/{idUsuario} |
+| Usuario | ADMIN                  | Ativar usuário                                                      | PUT    | /api/usuarios/admin/ativar/{idUsuario} |
+| Usuario | ADMIN                  | Listar todos líderes                                                | GET    | /api/usuarios/admin/todos-lideres |
+| Usuario | ADMIN                  | Total de usuários ativos                                            | GET    | /api/usuarios/admin/estatistica/total-usuarios-ativos |
+| Usuario | ADMIN                  | Produtividade de um subordinado específico                         | GET    | /api/usuarios/admin/estatistica/produtividade/{idUsuario} |
+| Tarefa  | ADMIN e SUPERIOR       | Total de tarefas do sistema                                         | GET    | /api/tarefas/estatistica/total-tarefas |
+| Tarefa  | ADMIN                  | Total tarefas por status                                            | GET    | /api/tarefas/admin/estatistica/total-tarefas-por-status |
+| Tarefa  | ADMIN                  | Tempo médio de conclusão das tarefas                                | GET    | /api/tarefas/admin/estatistica/tempo-medio-conclusao |
+| Tarefa  | SUPERIOR               | Criar tarefa                                                        | POST   | /api/tarefas/superior/criar |
+| Tarefa  | SUPERIOR               | Atualizar tarefa                                                    | PUT    | /api/tarefas/superior/atualizar/{idTarefa} |
+| Tarefa  | SUPERIOR               | Deletar tarefa                                                      | DELETE | /api/tarefas/superior/deletar/{idTarefa} |
+| Usuario | SUPERIOR               | Listar equipe (todos subordinados)                                 | GET    | /api/usuarios/superior/equipe |
+| Tarefa  | SUPERIOR               | Listar todas tarefas da equipe                                     | GET    | /api/tarefas/superior/tarefas-equipe |
+| Tarefa  | SUPERIOR               | Listar tipos de tarefa (dropdown)                                  | GET    | /api/tipo-tarefa |
+| Tarefa  | SUPERIOR e SUBORDINADO | Buscar tarefa por ID                                                | GET    | /api/tarefas/{idTarefa} |
+| Tarefa  | SUBORDINADO            | Listar tarefas do subordinado logado                                | GET    | /api/tarefas/subordinado/tarefas |
+| Tarefa  | SUBORDINADO            | Concluir tarefa + gerar feedback automático                         | PUT    | /api/tarefas/subordinado/concluir/{idTarefa} |
+| Usuario | TODOS                  | Retorna dados do usuário por ID                                     | GET    | /api/usuarios/geral/{idUsuario} |
 
 ## Modelo Relacional
 
+![Modelo Relacional](./utils/relational_task_mirror.png)
 
+## Como rodar o projeto localmente
+### Clone o projeto
+``` shell
+git clone https://github.com/andremarko/task-mirror-api-java.git
+cd task-mirror-api-java
+```
+### Configure a conexão com o banco de dados - projeto configurado para persistência em Microsoft SQL Server
+#### Adicione o import do env.properties no application.properties
 
+```
+spring.application.name=task-mirror-api
+spring.config.import=optional:classpath:env.properties
+...
+...
+```
+#### Crie o env.properties na pasta src/main/resources e adicione as variáveis de ambiente do banco de dados
+```
+cd task-mirror-api-java/src/main/resources
+touch env.properties
+```
+#### Configuração mínima:
 
-## Como rodar o projeto
-
-
+```
+OLLAMA_API_KEY=seu_ollama_api_key
+ORACLE_JDBC_CONNECTION_STRING=sua_string_de_conexao_jdbc_mssql_database_aqui
+ORACLE_JDBC_USERNAME=seu_usuario_do_banco_aqui
+ORACLE_JDBC_PASSWORD=sua_senha_do_banco_aqui
+JWT_SECRET=seu_secret_jwt_aqui
+EXPIRATION_TIME=seu_tempo_de_expiracao_em_milisegundos_aqui_para_JWT
+```
 
 ## Deploy no Render
-
-
+A aplicação está hospedada no Render e pode ser acessada através do link abaixo:
+https://task-mirror-api-java.onrender.com/swagger
 
 ## Interface do Administrador
-
-
-
+a aplicação frontend para a interface do administrador está disponível no repositório: https://github.com/andremarko/task-mirror-admin-interface
 
 ## Deploy na Vercel
 
+A interface do administrador está hospedada na Vercel e pode ser acessada através do link abaixo:
 
+https://task-mirror-admin-interface.vercel.app/
+
+### Login na Interface do Administrador
+
+|Login|          |
+|----- |----------| 
+|Username| admin    
+|Senha | senha123 |
 
