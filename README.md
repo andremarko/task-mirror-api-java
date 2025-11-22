@@ -12,10 +12,10 @@
 - [Dependências utilizadas](#dependencias-utilizadas)
 - [Endpoints](#endpoints)
 - [Modelo Relacional](#modelo-relacional)
-- [Como rodar o projeto](#como-rodar-o-projeto)
+- [Como rodar o projeto](#como-rodar-o-projeto-localmente)
 - [Deploy no Render](#deploy-no-render)
-- [Interface do Administrador](#interface-do-administrador) <!-- INSERIR LINK PARA REPO -->
-- [Deploy na Vercel](#deploy-na-vercel) <!-- INSERIR LINK  -->
+- [Interface do Administrador](#interface-do-administrador)
+- [Deploy na Vercel](#deploy-na-vercel) 
 
 ## Sobre o TaskMirror
 
