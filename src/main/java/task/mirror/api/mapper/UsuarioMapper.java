@@ -10,6 +10,7 @@ import task.mirror.api.model.Usuario;
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
     @Mapping(source = "lider.idUsuario", target = "idLider")
+    @Mapping(source = "roleUsuario", target = "roleUsuario")
     UsuarioResponseDTO toResponseDTO(Usuario usuario);
     LiderResponseDTO toLiderResponseDTO(Usuario usuario);
     Usuario toEntity(UsuarioRequestDTO dto);
